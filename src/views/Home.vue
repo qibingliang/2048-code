@@ -59,7 +59,7 @@ export default {
                 [0,0,0,0,],
             ],
             gridWidth:(document.body.offsetWidth - 74) / 4,
-            scores:0,
+            scores:0, 
             highScores:0,
         };
     },

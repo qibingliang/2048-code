@@ -73,118 +73,79 @@ export default {
     methods:{
         //计算传入数组（相邻非零相同数向左合并）并返回结果
         ArrayCompute2(data){
-            let aa = [...data]
             if(data.length>1){
+                let aa = []
                 if(data[0]==data[1]){
-                    data[0]+=data[1];
-                    this.scores+=data[0]
-                    console.log(data)
-                    aa = [...data[0],...[this.ArrayCompute2(data.slice(2,data.length-1))]]
+                    data[0] += data[1];
+                    data[1] = 0;
+                    const a1 = data[0];
+                    const a2 = this.ArrayCompute2(data.slice(2,data.length-1));
+                    this.scores += data[0]
+                    aa = [...[a1],...a2]
                 }else{
-                    console.log(data)
-                    aa = [...data[0],...[this.ArrayCompute2(data.slice(1,data.length-1))]]
+                    if(data.length==2){
+                        aa = data
+                    }else{
+                        const a1 = data[0];
+                        data.splice(0, 1);
+                        const a2 = this.ArrayCompute2(data);
+                        aa = [...[a1],...a2]
+                    }
                 }
+                return aa
+            }else{
+                return data
             }
-            return aa
         },
         ArrayCompute(data){
             let arr = []
             data.forEach((el,index)=>{
                 if(el>0) arr.push(el);
             })
+            // console.log(this.ArrayCompute2(arr))
             arr = this.ArrayCompute2(arr)
             let len = arr.length
-            while (len<4) {
+            while (arr.length < this.DataList.length) {
                 arr.push(0)
-                len = arr.length
             }
             return arr
         },
-        // ArrayCompute(data){
-        //     let arr = []
-        //     data.forEach((el,index)=>{
-        //         if(el>0) arr.push(el);
-        //     })
-        //     if(arr.length==2){
-        //         if(arr[0] == arr[1]){
-        //             arr[0]+=arr[1];
-        //             this.scores+=arr[0]
-        //             arr[1]=0
-        //         }
-        //     }else if(arr.length==3){
-        //         if(arr[0] == arr[1]){
-        //             arr[0]+=arr[1];
-        //             this.scores+=arr[0]
-        //             arr[1]=arr[2];
-        //             arr[2]=0;
-        //         }else if(arr[1] == arr[2]){
-        //             arr[1]+=arr[2];
-        //             this.scores+=arr[1]
-        //             arr[2]=0;
-        //         }
-        //     }else if(arr.length==4){
-        //         if(arr[0] == arr[1]){
-        //             arr[0]+=arr[1];
-        //             this.scores+=arr[0]
-        //             arr[1]=arr[2];
-        //             arr[2]=arr[3];
-        //             arr[3]=0;
-        //         }else if(arr[1] == arr[2]){
-        //             arr[1]+=arr[2];
-        //             this.scores+=arr[1]
-        //             arr[2]=arr[3];
-        //             arr[3]=0;
-        //         }else if(arr[2] == arr[3]){
-        //             arr[2]+=arr[3];
-        //             this.scores+=arr[2]
-        //             arr[3]=0;
-        //         }
-        //     }
-        //     let len = arr.length
-        //     while (len<4) {
-        //         arr.push(0)
-        //         len = arr.length
-        //     }
-        //     return arr
-        // },
         //触摸操作控制方向
         swipe(direction){
             const oldArr = this.DataList.toString()
             if(direction == 'Left'){
-                this.DataList.forEach((el,index)=>{
-                    this.$set(this.DataList,index,this.ArrayCompute(el))
-                })
-            }else if(direction == 'Right'){
-                this.DataList.forEach((el,index)=>{
-                    this.$set(this.DataList,index,this.ArrayCompute([...el].reverse()).reverse())
-                })
-            }else if(direction == 'Up'){
-                for (let i = 0; i < 4; i++) {
-                    let arr = [
-                        this.DataList[0][i],
-                        this.DataList[1][i],
-                        this.DataList[2][i],
-                        this.DataList[3][i]
-                    ];
+                for (let i = 0; i < this.DataList.length; i++) {
+                    let arr = this.DataList[i];
                     arr = this.ArrayCompute(arr)
-                    this.$set(this.DataList[0],i,arr[0])
-                    this.$set(this.DataList[1],i,arr[1])
-                    this.$set(this.DataList[2],i,arr[2])
-                    this.$set(this.DataList[3],i,arr[3])
+                    this.$set(this.DataList,i,arr)
+                }
+            }else if(direction == 'Right'){
+                for (let i = 0; i < this.DataList.length; i++) {
+                    let arr = this.DataList[i];
+                    arr = this.ArrayCompute(arr.reverse()).reverse()
+                    this.$set(this.DataList,i,arr)
+                }
+            }else if(direction == 'Up'){
+                for (let i = 0; i < this.DataList.length; i++) {
+                    let arr = [];
+                    for (let i2 = 0; i2 < this.DataList.length; i2++) {
+                        arr.push(this.DataList[i2][i])
+                    }
+                    arr = this.ArrayCompute(arr)
+                    for (let i2 = 0; i2 < this.DataList.length; i2++) {
+                        this.$set(this.DataList[i2],i,arr[i2])
+                    }
                 }
             }else if(direction == 'Down'){
-                for (let i = 0; i < 4; i++) {
-                    let arr = [
-                        this.DataList[0][i],
-                        this.DataList[1][i],
-                        this.DataList[2][i],
-                        this.DataList[3][i]
-                    ];
+                for (let i = 0; i < this.DataList.length; i++) {
+                    let arr = [];
+                    for (let i2 = 0; i2 < this.DataList.length; i2++) {
+                        arr.push(this.DataList[i2][i])
+                    }
                     arr = this.ArrayCompute(arr.reverse()).reverse()
-                    this.$set(this.DataList[0],i,arr[0])
-                    this.$set(this.DataList[1],i,arr[1])
-                    this.$set(this.DataList[2],i,arr[2])
-                    this.$set(this.DataList[3],i,arr[3])
+                    for (let i2 = 0; i2 < this.DataList.length; i2++) {
+                        this.$set(this.DataList[i2],i,arr[i2])
+                    }
                 }
             }
             let aa = []
@@ -196,7 +157,7 @@ export default {
             if(aa.length>0){
                 if(oldArr === this.DataList.toString()) return;
                 let bb = this.randomNumber(0,aa.length-1)
-                this.$set(this.DataList[aa[bb][0]],aa[bb][1],this.randomNumber(0,3)==3 ? 4 : 2)
+                this.$set(this.DataList[aa[bb][0]],aa[bb][1],this.randomNumber(0,5)==5 ? 4 : 2)
             }else{
                 alert("GG")
             }
@@ -240,8 +201,8 @@ export default {
                 el.fill(0)
             })
             //下面是对两个随机位置的数据添加（会出现两次随机位置相同的问题，暂时不解决）
-            this.$set(this.DataList[this.randomNumber(0,3)],this.randomNumber(0,3),this.randomNumber(0,3)==3 ? 4 : 2)
-            this.$set(this.DataList[this.randomNumber(0,3)],this.randomNumber(0,3),this.randomNumber(0,3)==3 ? 4 : 2)
+            this.$set(this.DataList[this.randomNumber(0,this.DataList.length-1)],this.randomNumber(0,this.DataList[0].length-1),this.randomNumber(0,3)==3 ? 4 : 2)
+            this.$set(this.DataList[this.randomNumber(0,this.DataList.length-1)],this.randomNumber(0,this.DataList[0].length-1),this.randomNumber(0,3)==3 ? 4 : 2)
         },
     },
     mounted(){

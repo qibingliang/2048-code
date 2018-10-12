@@ -39,18 +39,18 @@
             </div>
             <v-layout row justify-space-around>
                 <v-flex xs4>
-                    <v-btn @keyup.up="swipe('Up')" @click="swipe('Up')" color="info">上</v-btn>
+                    <v-btn @click="swipe('Up')" color="info">上</v-btn>
                 </v-flex>
             </v-layout>
             <v-layout row justify-center>
                 <v-flex xs4>
-                    <v-btn @keyup.left="swipe('Left')" @click="swipe('Left')" color="info">左</v-btn>
+                    <v-btn @click="swipe('Left')" color="info">左</v-btn>
                 </v-flex>
                 <v-flex xs4>
-                    <v-btn @keyup.down="swipe('Down')" @click="swipe('Down')" color="info">下</v-btn>
+                    <v-btn @click="swipe('Down')" color="info">下</v-btn>
                 </v-flex>
                 <v-flex xs4>
-                    <v-btn @keyup.right="swipe('Right')" @click="swipe('Right')" color="info">右</v-btn>
+                    <v-btn @click="swipe('Right')" color="info">右</v-btn>
                 </v-flex>
             </v-layout>
         </div>
@@ -116,7 +116,6 @@ export default {
             data.forEach((el,index)=>{
                 if(el>0) arr.push(el);
             })
-            // console.log(this.ArrayCompute2(arr))
             arr = this.ArrayCompute2(arr)
             let len = arr.length
             while (arr.length < this.DataList.length) {
@@ -222,6 +221,23 @@ export default {
     mounted(){
         this.restart()
     },
+    created(){
+        //绑定键盘事件（方向键）
+        let _this = this;
+        document.onkeydown = function(e){
+            let _key = window.event.keyCode;
+            switch(_key){
+                case 37: 
+                    _this.swipe('Left');break;
+                case 38:
+                    _this.swipe('Up');break;
+                case 39:
+                    _this.swipe('Right');break;
+                case 40:
+                    _this.swipe('Down');break;
+            }
+        }
+    }
 };
 </script>
 <style lang="less">

@@ -1,18 +1,290 @@
 <template>
-  <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+    <div class="home">
+        <div class="header">
+            <v-layout row wrap>
+                <v-flex xs6>
+                    <div class="number">
+                        <p>分数</p>
+                        <p>{{scores}}</p>
+                    </div>
+                </v-flex>
+                <v-flex xs6>
+                    <div class="number">
+                        <p>最高分</p>
+                        <p>{{highScores}}</p>
+                    </div>
+                </v-flex>
+                <v-flex xs6>
+                    <v-btn color="warning">撤销(3)</v-btn>
+                </v-flex>
+                <v-flex xs6>
+                    <v-btn @click.native="restart()" color="warning">重新开始</v-btn>
+                </v-flex>
+            </v-layout>
+        </div>
+        <div class="content">
+            <div class="chessboard" v-touch="{
+                left: () => swipe('Left'),
+                right: () => swipe('Right'),
+                up: () => swipe('Up'),
+                down: () => swipe('Down')
+            }">
+                <v-layout v-for="(item,index) in DataList" :key="index" row wrap>
+                    <v-flex v-for="(items,indexs) in item" :key="indexs" xs3>
+                        <div class="grid" :style="{height:gridWidth+'px','line-height':gridWidth+'px','background-color':gridColor(items)}">
+                            {{items==0?'':items}}
+                        </div>
+                    </v-flex>
+                </v-layout>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
+import HelloWorld from "@/components/HelloWorld.vue";
 
 export default {
-  name: 'home',
-  components: {
-    HelloWorld
-  }
-}
+    name: "home",
+    components: {
+        HelloWorld
+    },
+    data(){
+        return {
+            DataList:[
+                [0,0,0,0,],
+                [0,0,0,0,],
+                [0,0,0,0,],
+                [0,0,0,0,],
+            ],
+            gridWidth:(document.body.offsetWidth - 74) / 4,
+            scores:0,
+            highScores:0,
+        };
+    },
+    watch: {
+        scores: function (val, oldVal) {
+            if(val>this.highScores) this.highScores = val;
+        },
+    },
+    computed:{
+    },
+    methods:{
+        //计算传入数组（相邻非零相同数向左合并）并返回结果
+        ArrayCompute2(data){
+            let aa = [...data]
+            if(data.length>1){
+                if(data[0]==data[1]){
+                    data[0]+=data[1];
+                    this.scores+=data[0]
+                    console.log(data)
+                    aa = [...data[0],...[this.ArrayCompute2(data.slice(2,data.length-1))]]
+                }else{
+                    console.log(data)
+                    aa = [...data[0],...[this.ArrayCompute2(data.slice(1,data.length-1))]]
+                }
+            }
+            return aa
+        },
+        ArrayCompute(data){
+            let arr = []
+            data.forEach((el,index)=>{
+                if(el>0) arr.push(el);
+            })
+            arr = this.ArrayCompute2(arr)
+            let len = arr.length
+            while (len<4) {
+                arr.push(0)
+                len = arr.length
+            }
+            return arr
+        },
+        // ArrayCompute(data){
+        //     let arr = []
+        //     data.forEach((el,index)=>{
+        //         if(el>0) arr.push(el);
+        //     })
+        //     if(arr.length==2){
+        //         if(arr[0] == arr[1]){
+        //             arr[0]+=arr[1];
+        //             this.scores+=arr[0]
+        //             arr[1]=0
+        //         }
+        //     }else if(arr.length==3){
+        //         if(arr[0] == arr[1]){
+        //             arr[0]+=arr[1];
+        //             this.scores+=arr[0]
+        //             arr[1]=arr[2];
+        //             arr[2]=0;
+        //         }else if(arr[1] == arr[2]){
+        //             arr[1]+=arr[2];
+        //             this.scores+=arr[1]
+        //             arr[2]=0;
+        //         }
+        //     }else if(arr.length==4){
+        //         if(arr[0] == arr[1]){
+        //             arr[0]+=arr[1];
+        //             this.scores+=arr[0]
+        //             arr[1]=arr[2];
+        //             arr[2]=arr[3];
+        //             arr[3]=0;
+        //         }else if(arr[1] == arr[2]){
+        //             arr[1]+=arr[2];
+        //             this.scores+=arr[1]
+        //             arr[2]=arr[3];
+        //             arr[3]=0;
+        //         }else if(arr[2] == arr[3]){
+        //             arr[2]+=arr[3];
+        //             this.scores+=arr[2]
+        //             arr[3]=0;
+        //         }
+        //     }
+        //     let len = arr.length
+        //     while (len<4) {
+        //         arr.push(0)
+        //         len = arr.length
+        //     }
+        //     return arr
+        // },
+        //触摸操作控制方向
+        swipe(direction){
+            const oldArr = this.DataList.toString()
+            if(direction == 'Left'){
+                this.DataList.forEach((el,index)=>{
+                    this.$set(this.DataList,index,this.ArrayCompute(el))
+                })
+            }else if(direction == 'Right'){
+                this.DataList.forEach((el,index)=>{
+                    this.$set(this.DataList,index,this.ArrayCompute([...el].reverse()).reverse())
+                })
+            }else if(direction == 'Up'){
+                for (let i = 0; i < 4; i++) {
+                    let arr = [
+                        this.DataList[0][i],
+                        this.DataList[1][i],
+                        this.DataList[2][i],
+                        this.DataList[3][i]
+                    ];
+                    arr = this.ArrayCompute(arr)
+                    this.$set(this.DataList[0],i,arr[0])
+                    this.$set(this.DataList[1],i,arr[1])
+                    this.$set(this.DataList[2],i,arr[2])
+                    this.$set(this.DataList[3],i,arr[3])
+                }
+            }else if(direction == 'Down'){
+                for (let i = 0; i < 4; i++) {
+                    let arr = [
+                        this.DataList[0][i],
+                        this.DataList[1][i],
+                        this.DataList[2][i],
+                        this.DataList[3][i]
+                    ];
+                    arr = this.ArrayCompute(arr.reverse()).reverse()
+                    this.$set(this.DataList[0],i,arr[0])
+                    this.$set(this.DataList[1],i,arr[1])
+                    this.$set(this.DataList[2],i,arr[2])
+                    this.$set(this.DataList[3],i,arr[3])
+                }
+            }
+            let aa = []
+            this.DataList.forEach((el1,index1)=>{
+                el1.forEach((el2,index2)=>{
+                    if(el2 == 0)  aa.push([index1,index2])
+                })
+            })
+            if(aa.length>0){
+                if(oldArr === this.DataList.toString()) return;
+                let bb = this.randomNumber(0,aa.length-1)
+                this.$set(this.DataList[aa[bb][0]],aa[bb][1],this.randomNumber(0,3)==3 ? 4 : 2)
+            }else{
+                alert("GG")
+            }
+        },
+        //数字背景颜色
+        gridColor(item){
+            switch (item){
+                case 0: 
+                    return 'rgba(255, 255, 255, 0.2)';
+                case 2: 
+                    return 'rgba(255, 255, 255, 0.4)';
+                case 4: 
+                    return 'rgba(243, 221, 184, 0.77)';
+                case 8: 
+                    return 'rgba(255, 197, 100, 0.8)';
+                case 16: 
+                    return 'rgba(245, 127, 43, 0.8)';
+                case 32: 
+                    return 'rgb(245, 96, 39, 0.9)';
+                case 64: 
+                    return 'rgb(247, 54, 39, 0.9)';
+                case 128: 
+                    return 'rgba(247, 216, 77, 0.85)';
+                case 256: 
+                    return 'rgba(247, 216, 77, 0.85)';
+                case 512: 
+                    return 'rgba(247, 216, 77, 0.85)';
+                default:
+                    return 'rgba(247, 216, 77, 0.85)';
+            }
+        },
+        //获取规定范围随机数，用于初始化游戏计算位置等。
+        randomNumber(lowerValue,upperValue){
+            return Math.floor(Math.random() * (upperValue - lowerValue + 1) + lowerValue);
+        },
+        //重新开始游戏
+        restart(){
+            this.scores = 0
+            //将所有数据清0
+            this.DataList.forEach(el=>{
+                el.fill(0)
+            })
+            //下面是对两个随机位置的数据添加（会出现两次随机位置相同的问题，暂时不解决）
+            this.$set(this.DataList[this.randomNumber(0,3)],this.randomNumber(0,3),this.randomNumber(0,3)==3 ? 4 : 2)
+            this.$set(this.DataList[this.randomNumber(0,3)],this.randomNumber(0,3),this.randomNumber(0,3)==3 ? 4 : 2)
+        },
+    },
+    mounted(){
+        this.restart()
+    },
+};
 </script>
+<style lang="less">
+    .home{
+        width: 100%;
+        height: 100%;
+        background-color: #fdeed4;
+        .header{
+            width: 100%;
+            height: 150px;
+            .number{
+                margin: 12px;
+                height: 50px;
+                border-radius: 5px;
+                background-color: rgba(121, 85, 72, 0.3);
+                p{
+                    margin: 0px;
+                }
+            }
+        }
+        .content{
+            width: 100%;
+            overflow: hidden;
+            height: ~'calc(100% - 150px)';
+            .chessboard{
+                padding: 5px;
+                margin: 12px;
+                width: ~'calc(100% - 24px)';
+                background-color: rgba(121, 85, 72, 0.3);
+                .grid{
+                    margin: 5px;
+                    font-size: 25px;
+                    box-shadow: 
+                        0px 2px 1px -1px rgba(0,0,0,0.2), 
+                        0px 1px 1px 0px rgba(0,0,0,0.14), 
+                        0px 1px 3px 0px rgba(0,0,0,0.12);
+                }
+            }
+        }
+    }
+</style>

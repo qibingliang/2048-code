@@ -31,12 +31,28 @@
             }">
                 <v-layout v-for="(item,index) in DataList" :key="index" row wrap>
                     <v-flex v-for="(items,indexs) in item" :key="indexs" xs3>
-                        <div class="grid" :style="{height:gridWidth+'px','line-height':gridWidth+'px','background-color':gridColor(items)}">
+                        <div class="grid" :style="{width:gridWidth+'px',height:gridWidth+'px','line-height':gridWidth+'px','background-color':gridColor(items)}">
                             {{items==0?'':items}}
                         </div>
                     </v-flex>
                 </v-layout>
             </div>
+            <v-layout row justify-space-around>
+                <v-flex xs4>
+                    <v-btn @keyup.up="swipe('Up')" @click="swipe('Up')" color="info">上</v-btn>
+                </v-flex>
+            </v-layout>
+            <v-layout row justify-center>
+                <v-flex xs4>
+                    <v-btn @keyup.left="swipe('Left')" @click="swipe('Left')" color="info">左</v-btn>
+                </v-flex>
+                <v-flex xs4>
+                    <v-btn @keyup.down="swipe('Down')" @click="swipe('Down')" color="info">下</v-btn>
+                </v-flex>
+                <v-flex xs4>
+                    <v-btn @keyup.right="swipe('Right')" @click="swipe('Right')" color="info">右</v-btn>
+                </v-flex>
+            </v-layout>
         </div>
     </div>
 </template>
@@ -71,16 +87,13 @@ export default {
     computed:{
     },
     methods:{
-        //计算传入数组（相邻非零相同数向左合并）并返回结果
         ArrayCompute2(data){
             if(data.length>1){
                 let aa = []
                 if(data[0]==data[1]){
-                    data[0] += data[1];
-                    data[1] = 0;
-                    const a1 = data[0];
+                    const a1 = data[0] + data[1];
                     const a2 = this.ArrayCompute2(data.slice(2,data.length-1));
-                    this.scores += data[0]
+                    this.scores += a1
                     aa = [...[a1],...a2]
                 }else{
                     if(data.length==2){
@@ -97,6 +110,7 @@ export default {
                 return data
             }
         },
+        //计算传入数组（相邻非零相同数向左合并）并返回结果
         ArrayCompute(data){
             let arr = []
             data.forEach((el,index)=>{

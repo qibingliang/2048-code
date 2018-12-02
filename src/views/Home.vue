@@ -78,7 +78,7 @@ export default {
             scores:0, 
             highScores:0,
             stepList:[],
-            revocationNum:3,
+            revocationNum:9,
         };
     },
     watch: {
@@ -88,48 +88,48 @@ export default {
     },
     computed:{
         gridWidth(){
-            return (document.body.offsetWidth - 74) / 4
+            return (document.body.offsetWidth - 74) / 4;
         }
     },
     methods:{
         //撤销操作
         revocation(){
-            if(this.revocationNum>0 && this.stepList.length>0){
-                let data = JSON.parse(JSON.stringify(this.stepList[this.stepList.length-1]))
-                this.$set(this,'DataList',data)
-                this.stepList.pop()
-                this.revocationNum -= 1
+            if(this.revocationNum>0 && this.stepList.length && this.stepList.length>0){
+                this.stepList.pop();
+                let data = JSON.parse(JSON.stringify(this.stepList[this.stepList.length-1]));
+                this.$set(this,'DataList',data);
+                this.revocationNum -= 1;
             }else{
-                alert('无法撤销')
+                alert('无法撤销');
             }
         },
         //记录操作步骤，用于撤销到上一步
         stepUpdate(data){
-            if(this.stepList.length<3){
-                if((this.stepList.length == 0) || (this.stepList[this.stepList.length-1] !== data)){
-                    this.stepList.push([...data])
+            if(this.stepList.length<9){
+                if((this.stepList.length == 0) || (this.stepList[this.stepList.length-1].toString() !== data.toString())){
+                    this.stepList.push([...data]);
                 }
-            }else if((this.stepList.length == 3) && (this.stepList[2] !== data)){
+            }else if((this.stepList.length == 9) && (this.stepList[8].toString() !== data.toString())){
                 this.stepList.splice(0,1);
-                this.stepList.push([...data])
+                this.stepList.push([...data]);
             }
         },
         ArrayCompute2(data){
             if(data.length>1){
-                let aa = []
+                let aa = [];
                 if(data[0]==data[1]){
                     const a1 = data[0] + data[1];
-                    const a2 = this.ArrayCompute2(data.slice(2,data.length-1));
-                    this.scores += a1
-                    aa = [...[a1],...a2]
+                    this.scores += a1;
+                    const a2 = this.ArrayCompute2(data.slice(2,data.length));
+                    aa = [...[a1],...a2];
                 }else{
                     if(data.length==2){
-                        aa = data
+                        aa = data;
                     }else{
                         const a1 = data[0];
                         data.splice(0, 1);
-                        const a2 = this.ArrayCompute2(data);
-                        aa = [...[a1],...a2]
+                        const a2 = this.ArrayCompute2(JSON.parse(JSON.stringify(data)));
+                        aa = [...[a1],...a2];
                     }
                 }
                 return aa
@@ -143,64 +143,62 @@ export default {
             data.forEach((el,index)=>{
                 if(el>0) arr.push(el);
             })
-            arr = this.ArrayCompute2(arr)
-            let len = arr.length
+            arr = this.ArrayCompute2(JSON.parse(JSON.stringify(arr)))
             while (arr.length < this.DataList.length) {
-                arr.push(0)
+                arr.push(0);
             }
             return arr
         },
         //触摸操作控制方向
         swipe(direction){
-            const oldArr = this.DataList.toString()
-            this.stepUpdate(JSON.parse(JSON.stringify(this.DataList)))
+            const oldArr = this.DataList.toString();
             if(direction == 'Left'){
                 for (let i = 0; i < this.DataList.length; i++) {
-                    let arr = this.DataList[i];
-                    arr = this.ArrayCompute(arr)
-                    this.$set(this.DataList,i,arr)
+                    let arr = this.ArrayCompute(JSON.parse(JSON.stringify(this.DataList[i])));
+                    this.$set(this.DataList,i,arr);
                 }
             }else if(direction == 'Right'){
                 for (let i = 0; i < this.DataList.length; i++) {
-                    let arr = this.DataList[i];
-                    arr = this.ArrayCompute(arr.reverse()).reverse()
-                    this.$set(this.DataList,i,arr)
+                    let arr = JSON.parse(JSON.stringify(this.DataList[i]));
+                    arr = this.ArrayCompute(arr.reverse()).reverse();
+                    this.$set(this.DataList,i,arr);
                 }
             }else if(direction == 'Up'){
                 for (let i = 0; i < this.DataList.length; i++) {
                     let arr = [];
                     for (let i2 = 0; i2 < this.DataList.length; i2++) {
-                        arr.push(this.DataList[i2][i])
+                        arr.push(this.DataList[i2][i]);
                     }
                     arr = this.ArrayCompute(arr)
                     for (let i2 = 0; i2 < this.DataList.length; i2++) {
-                        this.$set(this.DataList[i2],i,arr[i2])
+                        this.$set(this.DataList[i2],i,arr[i2]);
                     }
                 }
             }else if(direction == 'Down'){
                 for (let i = 0; i < this.DataList.length; i++) {
                     let arr = [];
                     for (let i2 = 0; i2 < this.DataList.length; i2++) {
-                        arr.push(this.DataList[i2][i])
+                        arr.push(this.DataList[i2][i]);
                     }
-                    arr = this.ArrayCompute(arr.reverse()).reverse()
+                    arr = this.ArrayCompute(arr.reverse()).reverse();
                     for (let i2 = 0; i2 < this.DataList.length; i2++) {
-                        this.$set(this.DataList[i2],i,arr[i2])
+                        this.$set(this.DataList[i2],i,arr[i2]);
                     }
                 }
             }
-            let aa = []
+            let aa = [];
             this.DataList.forEach((el1,index1)=>{
                 el1.forEach((el2,index2)=>{
-                    if(el2 == 0)  aa.push([index1,index2])
+                    if(el2 == 0)  aa.push([index1,index2]);
                 })
             })
             if(aa.length>0){
                 if(oldArr === this.DataList.toString()) return;
-                let bb = this.randomNumber(0,aa.length-1)
-                this.$set(this.DataList[aa[bb][0]],aa[bb][1],this.randomNumber(0,5)==5 ? 4 : 2)
+                let bb = this.randomNumber(0,aa.length-1);
+                this.$set(this.DataList[aa[bb][0]],aa[bb][1],this.randomNumber(0,5)==5 ? 4 : 2);
+                this.stepUpdate(JSON.parse(JSON.stringify(this.DataList)));
             }else{
-                alert("游戏结束")
+                alert("游戏结束");
             }
         },
         //数字背景颜色
@@ -236,18 +234,19 @@ export default {
         },
         //重新开始游戏
         restart(){
-            this.scores = 0
+            this.scores = 0;
             //将所有数据清0
             this.DataList.forEach(el=>{
-                el.fill(0)
+                el.fill(0);
             })
             //下面是对两个随机位置的数据添加（会出现两次随机位置相同的问题，暂时不解决）
-            this.$set(this.DataList[this.randomNumber(0,this.DataList.length-1)],this.randomNumber(0,this.DataList[0].length-1),this.randomNumber(0,3)==3 ? 4 : 2)
-            this.$set(this.DataList[this.randomNumber(0,this.DataList.length-1)],this.randomNumber(0,this.DataList[0].length-1),this.randomNumber(0,3)==3 ? 4 : 2)
+            this.$set(this.DataList[this.randomNumber(0,this.DataList.length-1)],this.randomNumber(0,this.DataList[0].length-1),this.randomNumber(0,3)==3 ? 4 : 2);
+            this.$set(this.DataList[this.randomNumber(0,this.DataList.length-1)],this.randomNumber(0,this.DataList[0].length-1),this.randomNumber(0,3)==3 ? 4 : 2);
+            this.stepUpdate(JSON.parse(JSON.stringify(this.DataList)))
         },
     },
     mounted(){
-        this.restart()
+        this.restart();
     },
     created(){
         //绑定键盘事件（方向键）

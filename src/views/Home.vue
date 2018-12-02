@@ -15,7 +15,7 @@
                     </div>
                 </v-flex>
                 <v-flex xs6>
-                    <v-btn color="warning">撤销(3)</v-btn>
+                    <v-btn @click.native="revocation()" color="warning">撤销({{revocationNum}})</v-btn>
                 </v-flex>
                 <v-flex xs6>
                     <v-btn @click.native="restart()" color="warning">重新开始</v-btn>
@@ -74,9 +74,11 @@ export default {
                 [0,0,0,0,],
                 [0,0,0,0,],
             ],
-            gridWidth:(document.body.offsetWidth - 74) / 4,
+            // gridWidth:(document.body.offsetWidth - 74) / 4,
             scores:0, 
             highScores:0,
+            stepList:[],
+            revocationNum:3,
         };
     },
     watch: {
@@ -85,8 +87,33 @@ export default {
         },
     },
     computed:{
+        gridWidth(){
+            return (document.body.offsetWidth - 74) / 4
+        }
     },
     methods:{
+        //撤销操作
+        revocation(){
+            if(this.revocationNum>0 && this.stepList.length>0){
+                let data = JSON.parse(JSON.stringify(this.stepList[this.stepList.length-1]))
+                this.$set(this,'DataList',data)
+                this.stepList.pop()
+                this.revocationNum -= 1
+            }else{
+                alert('无法撤销')
+            }
+        },
+        //记录操作步骤，用于撤销到上一步
+        stepUpdate(data){
+            if(this.stepList.length<3){
+                if((this.stepList.length == 0) || (this.stepList[this.stepList.length-1] !== data)){
+                    this.stepList.push([...data])
+                }
+            }else if((this.stepList.length == 3) && (this.stepList[2] !== data)){
+                this.stepList.splice(0,1);
+                this.stepList.push([...data])
+            }
+        },
         ArrayCompute2(data){
             if(data.length>1){
                 let aa = []
@@ -126,6 +153,7 @@ export default {
         //触摸操作控制方向
         swipe(direction){
             const oldArr = this.DataList.toString()
+            this.stepUpdate(JSON.parse(JSON.stringify(this.DataList)))
             if(direction == 'Left'){
                 for (let i = 0; i < this.DataList.length; i++) {
                     let arr = this.DataList[i];
@@ -172,7 +200,7 @@ export default {
                 let bb = this.randomNumber(0,aa.length-1)
                 this.$set(this.DataList[aa[bb][0]],aa[bb][1],this.randomNumber(0,5)==5 ? 4 : 2)
             }else{
-                alert("GG")
+                alert("游戏结束")
             }
         },
         //数字背景颜色

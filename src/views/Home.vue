@@ -84,7 +84,7 @@ export default {
             //移动操作记录
             stepList:[],
             //可撤销次数
-            revocationNum:9,
+            revocationNum:20,
         };
     },
     watch: {

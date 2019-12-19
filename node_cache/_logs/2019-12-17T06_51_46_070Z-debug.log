@@ -1,0 +1,27 @@
+0 info it worked if it ends with ok
+1 verbose cli [
+1 verbose cli   '/usr/local/bin/node',
+1 verbose cli   '/usr/local/node/node_global/lib/node_modules/pm2/lib/ProcessContainerFork.js',
+1 verbose cli   'run',
+1 verbose cli   'dev'
+1 verbose cli ]
+2 info using npm@6.12.1
+3 info using node@v12.13.1
+4 verbose stack Error: missing script: dev
+4 verbose stack     at run (/usr/local/lib/node_modules/npm/lib/run-script.js:155:19)
+4 verbose stack     at /usr/local/lib/node_modules/npm/lib/run-script.js:63:5
+4 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:116:5
+4 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:435:5
+4 verbose stack     at checkBinReferences_ (/usr/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:391:45)
+4 verbose stack     at final (/usr/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:433:3)
+4 verbose stack     at then (/usr/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:161:5)
+4 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/read-package-json/read-json.js:382:12
+4 verbose stack     at /usr/local/lib/node_modules/npm/node_modules/graceful-fs/graceful-fs.js:115:16
+4 verbose stack     at FSReqCallback.readFileAfterClose [as oncomplete] (internal/fs/read_file_context.js:61:3)
+5 verbose cwd /root/ProjectCode/2048-code
+6 verbose Linux 3.10.0-1062.1.2.el7.x86_64
+7 verbose argv "/usr/local/bin/node" "/usr/local/node/node_global/lib/node_modules/pm2/lib/ProcessContainerFork.js" "run" "dev"
+8 verbose node v12.13.1
+9 verbose npm  v6.12.1
+10 error missing script: dev
+11 verbose exit [ 1, true ]

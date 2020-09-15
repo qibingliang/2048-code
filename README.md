@@ -1,0 +1,1 @@
+# [试玩该项目](https://qibingliang.github.io/2048-code/)

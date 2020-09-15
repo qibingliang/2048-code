@@ -14,6 +14,11 @@
                         <p>{{highScores}}</p>
                     </div>
                 </v-flex>
+                <!-- <v-flex xs12>
+                    <div class="time">
+                        <p>本局用时  {{time.h>9?time.h:'0'+time.h}}时{{time.m>9?time.m:'0'+time.m}}分{{ time.s>9?time.s:'0'+time.s}}秒</p>
+                    </div>
+                </v-flex> -->
                 <v-flex xs6>
                     <v-btn @click.native="revocation()" color="warning">撤销({{revocationNum}})</v-btn>
                 </v-flex>
@@ -84,7 +89,14 @@ export default {
             //移动操作记录
             stepList:[],
             //可撤销次数
-            revocationNum:20,
+            revocationNum:3,
+            //计时
+            time:{
+                s:0,
+                m:0,
+                h:0
+            },
+            timeM:null,
         };
     },
     watch: {
@@ -225,6 +237,7 @@ export default {
                 this.stepUpdate(oldArr);
             }else{
                 alert("游戏结束ヽ（≧□≦）ノ");
+                // this.restart();
             }
         },
         //判断棋盘放置满后是否还能移动
@@ -242,9 +255,33 @@ export default {
         randomNumber(lowerValue,upperValue){
             return Math.floor(Math.random() * (upperValue - lowerValue + 1) + lowerValue);
         },
+        //更新游戏计时时间
+        upGameTime(){
+            if(this.timeM){
+                clearInterval(this.timeM);
+                this.time.s = 0;
+                this.time.m = 0;
+                this.time.h = 0;
+            }
+            this.timeM = setInterval(() => {
+                if(this.time.s==59){
+                    this.time.s = 0;
+                    if(this.time.m==59){
+                        this.time.m = 0;
+                        this.time.h++
+                    }else{
+                        this.time.m++
+                    }
+                }else{
+                    this.time.s++
+                }
+            }, 1000);
+        },
         //重新开始游戏
         restart(){
             this.scores = 0;
+            this.revocationNum = 3;
+            this.stepList = [];
             //将所有数据清0
             this.DataList.forEach(el=>{
                 el.fill(0);
@@ -252,7 +289,8 @@ export default {
             //下面是对两个随机位置的数据添加（会出现两次随机位置相同的问题，暂时不解决）
             this.$set(this.DataList[this.randomNumber(0,this.DataList.length-1)],this.randomNumber(0,this.DataList[0].length-1),this.randomNumber(0,3)==3 ? 4 : 2);
             this.$set(this.DataList[this.randomNumber(0,this.DataList.length-1)],this.randomNumber(0,this.DataList[0].length-1),this.randomNumber(0,3)==3 ? 4 : 2);
-            this.stepUpdate(JSON.parse(JSON.stringify(this.DataList)))
+            this.stepUpdate(JSON.parse(JSON.stringify(this.DataList)));
+            // this.upGameTime();
         },
     },
     mounted(){
@@ -298,7 +336,7 @@ export default {
         background-color: #fdeed4;
         .header{
             width: 100%;
-            height: 150px;
+            height: 163px;
             .number{
                 margin: 12px;
                 padding-top: 10px;
@@ -310,11 +348,17 @@ export default {
                     margin: 0px;
                 }
             }
+            .time{
+                p{
+                    margin: 0px;
+                }
+
+            }
         }
         .content{
             width: 100%;
             overflow: hidden;
-            height: ~'calc(100% - 150px)';
+            height: ~'calc(100% - 163px)';
             .chessboard{
                 padding: 5px;
                 margin: 12px;

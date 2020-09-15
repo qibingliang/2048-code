@@ -10,5 +10,7 @@ module.exports = {
     port: 2048,
     disableHostCheck:true,
     public: '112.126.97.26:2048',
-  }
+  },
+
+  // publicPath: './'
 }

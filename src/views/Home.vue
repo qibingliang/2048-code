@@ -237,7 +237,7 @@ export default {
                 this.stepUpdate(oldArr);
             }else{
                 alert("游戏结束ヽ（≧□≦）ノ");
-                // this.restart();
+                this.restart();
             }
         },
         //判断棋盘放置满后是否还能移动
